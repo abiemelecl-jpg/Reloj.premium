@@ -614,7 +614,7 @@
 </footer>
 
 
-<script>
+  <script>
   // Datos de galería por color
   const WATCH = {
     colors: [
@@ -627,3 +627,109 @@
       },
       { id:"arctic", name:"Arctic Silver", hex:"#DDE3EA",
         imgs:[
+          "https://images.unsplash.com/photo-1511385348-a52b4a160dc2?q=80&w=1400&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1400&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?q=80&w=1400&auto=format&fit=crop",
+        ]
+      },
+      { id:"champagne", name:"Champagne Gold", hex:"#D8C3A5",
+        imgs:[
+          "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?q=80&w=1400&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?q=80&w=1400&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1457332813143-6f72f05d7cf2?q=80&w=1400&auto=format&fit=crop",
+        ]
+      },
+    ]
+  };
+
+  // Año footer
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  // Menú móvil
+  const menuBtn = document.getElementById("menuBtn");
+  const mobileMenu = document.getElementById("mobileMenu");
+  menuBtn.addEventListener("click", () => mobileMenu.classList.toggle("open"));
+  mobileMenu.querySelectorAll("a").forEach(a => a.addEventListener("click", ()=> mobileMenu.classList.remove("open")));
+
+  // Galería dinámica
+  const thumbs = document.getElementById("thumbs");
+  const mainImg = document.getElementById("mainImg");
+  const colorName = document.getElementById("colorName");
+  const colorRow = document.getElementById("colorRow");
+  const colorTags = document.getElementById("colorTags");
+
+  let currentColor = "obsidian";
+  let currentIdx = 0;
+
+  function renderThumbs(){
+    thumbs.innerHTML = "";
+    const c = WATCH.colors.find(x=>x.id===currentColor);
+    c.imgs.forEach((src,i)=>{
+      const b = document.createElement("button");
+      b.className = "thumb" + (i===currentIdx?" active":"");
+      b.innerHTML = `<img src="${src}" alt="Vista del reloj">`;
+      b.addEventListener("click", ()=>{
+        currentIdx=i;
+        mainImg.style.opacity=0;
+        setTimeout(()=>{ mainImg.src=src; mainImg.style.opacity=1; },150);
+        renderThumbs();
+      });
+      thumbs.appendChild(b);
+    });
+  }
+
+  function renderColorTags(){
+    colorTags.innerHTML="";
+    WATCH.colors.forEach(c=>{
+      const t = document.createElement("div");
+      t.className = "tag";
+      t.innerHTML = `<span class="dot" style="background:${c.hex}"></span>${c.name}`;
+      if(c.id===currentColor) t.style.color="#fff";
+      colorTags.appendChild(t);
+    });
+  }
+
+  function setColor(id){
+    currentColor=id;
+    currentIdx=0;
+    const c = WATCH.colors.find(x=>x.id===id);
+    mainImg.src=c.imgs[0];
+    colorName.textContent=c.name;
+    colorRow.querySelectorAll(".color-dot").forEach(b=>{
+      b.classList.toggle("active", b.dataset.color===id);
+    });
+    renderThumbs();
+    renderColorTags();
+  }
+
+  colorRow.querySelectorAll(".color-dot").forEach(b=>{
+    b.addEventListener("click", ()=> setColor(b.dataset.color));
+  });
+
+  renderThumbs();
+  renderColorTags();
+
+  // FAQ acordeón
+  document.querySelectorAll(".faq-item").forEach((item)=>{
+    item.querySelector(".faq-q").addEventListener("click", ()=>{
+      const open = item.classList.contains("open");
+      document.querySelectorAll(".faq-item").forEach(i=>i.classList.remove("open"));
+      if(!open) item.classList.add("open");
+    });
+  });
+
+  // ScrollSpy simple para el menú superior
+  const spyLinks = document.querySelectorAll("[data-spy]");
+  const sections = [...spyLinks].map(a => document.getElementById(a.dataset.spy));
+  const opts = { rootMargin: "-40% 0px -55% 0px", threshold: 0.01 };
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        spyLinks.forEach(a=>a.classList.toggle("active", a.dataset.spy===e.target.id));
+      }
+    })
+  }, opts);
+  sections.forEach(s=>s && io.observe(s));
+</script>
+</body>
+</html>
