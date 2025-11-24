@@ -1,761 +1,629 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, ShieldCheck, Droplets, Timer, Gem, ChevronRight, Star, Heart, Sparkles, Menu, X } from "lucide-react";
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Aurelia Nocturne 01 — Reloj Premium</title>
+  <meta name="description" content="Sitio premium de reloj con catálogo y enlaces a compra en Amazon, AliExpress e Instagram Shop." />
 
-/**
- * Sitio web premium sobre reloj (landing + catálogo)
- * - React + Tailwind + Framer Motion
- * - Single-file component listo para pegar en tu proyecto.
- *
- * Cómo usar:
- * 1) Asegúrate de tener Tailwind y framer-motion instalados.
- * 2) Exporta este componente en tu App.
- */
+  <style>
+    :root{
+      --bg:#000;
+      --bg-soft:#06070A;
+      --card: rgba(255,255,255,0.04);
+      --card2: rgba(255,255,255,0.06);
+      --line: rgba(255,255,255,0.10);
+      --text:#fff;
+      --muted: rgba(255,255,255,0.70);
+      --muted2: rgba(255,255,255,0.55);
+      --muted3: rgba(255,255,255,0.35);
+      --accent:#fff;
+      --radius:18px;
+      --radius-sm:12px;
+      --shadow: 0 40px 120px -40px rgba(0,0,0,.9);
+    }
 
-const WATCH = {
-  brand: "Aurelia",
-  model: "Nocturne 01",
-  price: 1890,
-  currency: "USD",
-  tagline: "Precisión suiza. Diseño atemporal.",
-  heroCopy:
-    "Una reinterpretación moderna de la relojería clásica, con un movimiento automático visible y acabados artesanales.",
-  colors: [
-    { id: "obsidian", name: "Obsidian Black", hex: "#0B0D10" },
-    { id: "arctic", name: "Arctic Silver", hex: "#DDE3EA" },
-    { id: "champagne", name: "Champagne Gold", hex: "#D8C3A5" },
-  ],
-  gallery: {
-    obsidian: [
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1400&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1524805444758-089113d48a6d?q=80&w=1400&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1547996160-81dfa63595aa?q=80&w=1400&auto=format&fit=crop",
-    ],
-    arctic: [
-      "https://images.unsplash.com/photo-1511385348-a52b4a160dc2?q=80&w=1400&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1400&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?q=80&w=1400&auto=format&fit=crop",
-    ],
-    champagne: [
-      "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?q=80&w=1400&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?q=80&w=1400&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1457332813143-6f72f05d7cf2?q=80&w=1400&auto=format&fit=crop",
-    ],
-  },
-  specs: [
-    { icon: Timer, label: "Movimiento", value: "Automático calibre A-17" },
-    { icon: Droplets, label: "Resistencia", value: "10 ATM / 100 m" },
-    { icon: ShieldCheck, label: "Cristal", value: "Zafiro antirreflejo" },
-    { icon: Gem, label: "Caja", value: "Acero 316L pulido" },
-  ],
-  features: [
-    {
-      title: "Esqueleto contemporáneo",
-      text: "Vista del movimiento con puentes biselados y rotor satinado. Un espectáculo discreto para quienes aprecian la mecánica.",
-    },
-    {
-      title: "Lume de doble tono",
-      text: "Legibilidad total de noche con marcadores Super‑LumiNova y agujas facetadas.",
-    },
-    {
-      title: "Correa intercambiable",
-      text: "Sistema quick‑release compatible con cuero y brazalete metálico.",
-    },
-  ],
-  reviews: [
-    {
-      name: "Lucía M.",
-      rating: 5,
-      text: "La sensación en muñeca es increíble. Se nota la calidad en cada detalle.",
-    },
-    {
-      name: "Arturo M.",
-      rating: 5,
-      text: "Minimalista pero con carácter. El movimiento visible es hipnótico.",
-    },
-    {
-      name: "Daniela R.",
-      rating: 4,
-      text: "Acabados premium y entrega impecable. Muy recomendable.",
-    },
-  ],
-};
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;scroll-behavior:smooth}
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%;display:block}
 
-const navItems = [
-  { id: "coleccion", label: "Colección" },
-  { id: "detalles", label: "Detalles" },
-  { id: "proceso", label: "Proceso" },
-  { id: "opiniones", label: "Opiniones" },
-  { id: "faq", label: "FAQ" },
-];
+    .container{max-width:1200px;margin:0 auto;padding:0 18px}
+    .section{padding:90px 0}
+    .chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:rgba(255,255,255,0.05);padding:6px 10px;border-radius:999px;font-size:12px;color:var(--muted)}
+    .chip strong{color:#fff}
+    .glass{
+      border:1px solid var(--line);
+      background:var(--card);
+      border-radius:24px;
+      backdrop-filter: blur(12px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), var(--shadow);
+    }
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      padding:12px 16px;border-radius:14px;border:1px solid var(--line);
+      font-weight:600;font-size:14px;transition:.2s ease;cursor:pointer;
+      background:rgba(255,255,255,0.06);color:#fff;
+    }
+    .btn:hover{transform:translateY(-1px);background:rgba(255,255,255,0.10)}
+    .btn-primary{
+      background:#fff;color:#000;border-color:#fff;
+      box-shadow:0 10px 30px rgba(255,255,255,.12);
+    }
+    .btn-primary:hover{background:#f2f2f2}
+    .btn-ghost{background:transparent}
 
-function cn(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
+    /* Header */
+    header{
+      position:fixed;top:0;left:0;right:0;z-index:999;
+      padding:12px 0;
+    }
+    .nav{
+      display:flex;align-items:center;justify-content:space-between;
+      border:1px solid var(--line);background:rgba(0,0,0,0.55);
+      border-radius:18px;padding:10px 12px;backdrop-filter:blur(12px);
+    }
+    .brand{display:flex;align-items:center;gap:10px}
+    .brandMark{
+      height:38px;width:38px;border-radius:12px;
+      display:grid;place-items:center;background:rgba(255,255,255,0.10);
+      font-weight:800;letter-spacing:.2em;
+    }
+    nav ul{list-style:none;display:flex;gap:6px;margin:0;padding:0}
+    nav a{
+      font-size:14px;padding:8px 10px;border-radius:10px;color:var(--muted);
+      transition:.2s ease;
+    }
+    nav a.active, nav a:hover{background:rgba(255,255,255,0.08);color:#fff}
+    .nav-actions{display:flex;align-items:center;gap:8px}
+    .menu-btn{display:none}
 
-function useScrollSpy(ids) {
-  const [active, setActive] = useState(ids[0]);
-  useEffect(() => {
-    const observers = [];
-    ids.forEach((id) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const obs = new IntersectionObserver(
-        ([entry]) => entry.isIntersecting && setActive(id),
-        { rootMargin: "-40% 0px -55% 0px", threshold: 0.01 }
-      );
-      obs.observe(el);
-      observers.push(obs);
-    });
-    return () => observers.forEach((o) => o.disconnect());
-  }, [ids]);
-  return active;
-}
+    /* Hero */
+    .hero{
+      padding-top:120px;
+      background:
+        radial-gradient(1200px circle at 80% -10%, rgba(255,255,255,0.12), transparent 60%),
+        radial-gradient(1000px circle at 10% 10%, rgba(255,255,255,0.08), transparent 55%),
+        linear-gradient(#000, #000, var(--bg-soft));
+      position:relative;
+    }
+    .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center}
+    .hero h1{font-size:46px;line-height:1.05;margin:14px 0 10px;letter-spacing:-.02em}
+    .hero h1 span{display:block;color:var(--muted2);font-weight:600}
+    .hero p{color:var(--muted);font-size:17px;max-width:560px}
 
-const Badge = ({ children }) => (
-  <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur">
-    <Sparkles className="h-3.5 w-3.5" />
-    {children}
-  </span>
-);
+    .price{font-size:26px;font-weight:700}
+    .small{font-size:13px;color:var(--muted2)}
 
-const GlassCard = ({ className, children }) => (
-  <div
-    className={cn(
-      "rounded-2xl border border-white/10 bg-white/[0.04] shadow-[0_1px_0_0_rgba(255,255,255,0.06)_inset,0_40px_120px_-40px_rgba(0,0,0,0.9)] backdrop-blur-xl",
-      className
-    )}
-  >
-    {children}
+    .color-row{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+    .color-dot{
+      height:36px;width:36px;border-radius:999px;border:1px solid var(--line);padding:2px;background:#111;cursor:pointer;
+      transition:.2s ease;display:grid;place-items:center;
+    }
+    .color-dot span{height:100%;width:100%;border-radius:999px;display:block}
+    .color-dot.active{outline:2px solid rgba(255,255,255,.9);outline-offset:2px}
+    .color-name{margin-left:6px;color:var(--muted);font-size:14px}
+
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+    .stat{padding:12px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,0.05)}
+    .stat .label{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2)}
+    .stat .value{margin-top:3px;font-weight:700}
+
+    .gallery{padding:12px}
+    .gallery-main{aspect-ratio:4/5;border-radius:14px;overflow:hidden;position:relative}
+    .gallery-main img{height:100%;width:100%;object-fit:cover;transition:opacity .4s ease}
+    .thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+    .thumb{
+      aspect-ratio:4/3;border-radius:10px;overflow:hidden;border:1px solid var(--line);
+      background:#111;cursor:pointer;opacity:.85;transition:.2s ease;
+    }
+    .thumb.active, .thumb:hover{opacity:1;border-color:rgba(255,255,255,.6)}
+    .thumb img{height:100%;width:100%;object-fit:cover}
+
+    /* Trust bar */
+    .trust{margin-top:22px;padding:14px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .trust-item{display:flex;gap:10px;align-items:center}
+    .trust-ico{height:40px;width:40px;border-radius:12px;background:rgba(255,255,255,0.06);display:grid;place-items:center;font-weight:700}
+    .trust-item .tlabel{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted2)}
+    .trust-item .tval{font-size:14px;font-weight:600}
+
+    /* Details / features */
+    .two-col{display:grid;grid-template-columns:1fr 2fr;gap:24px}
+    .kicker{font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--muted2)}
+    h2{font-size:34px;line-height:1.1;margin:8px 0 10px}
+    .features{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .feature{padding:18px}
+    .feature h3{margin:0 0 6px;font-size:18px}
+    .feature p{margin:0;color:var(--muted);font-size:14px;line-height:1.55}
+
+    .spec-grid{margin-top:12px;padding:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .spec{padding:12px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,0.05)}
+    .spec .slabel{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted2)}
+    .spec .sval{font-size:14px;margin-top:4px;font-weight:600}
+
+    /* Craft */
+    .craft{
+      background:linear-gradient(var(--bg-soft), #000);
+      position:relative;
+    }
+    .craft-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:center}
+    .process{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+    .process .step{padding:14px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,0.05)}
+    .step .num{font-size:11px;color:var(--muted2);font-weight:700}
+    .step .title{font-size:14px;font-weight:700;margin-top:6px}
+    .step .text{font-size:13px;color:var(--muted);margin-top:4px}
+    .craft-img{padding:10px}
+    .craft-half{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+
+    /* Reviews */
+    .reviews-head{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap}
+    .stars{letter-spacing:2px}
+    .reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+    .review{padding:18px}
+    .review .rname{font-weight:700;font-size:14px}
+    .review .rtext{font-size:14px;color:var(--muted);margin-top:6px;line-height:1.55}
+
+    /* Buy box */
+    .buy{
+      background:linear-gradient(#000, var(--bg-soft), #000);
+    }
+    .buy-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;padding:16px}
+    .color-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    .tag{
+      display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,0.05);font-size:13px;color:var(--muted2)
+    }
+    .tag .dot{height:12px;width:12px;border-radius:999px}
+    .perks{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+    .perk{display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,0.45);font-size:12px;color:var(--muted)}
+    form{padding:14px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,0.04)}
+    label{display:grid;gap:6px;font-size:12px;color:var(--muted)}
+    input{
+      height:42px;border-radius:12px;border:1px solid var(--line);
+      background:rgba(0,0,0,0.5);color:#fff;padding:0 10px;outline:none;
+    }
+    input:focus{border-color:rgba(255,255,255,.45);box-shadow:0 0 0 3px rgba(255,255,255,.07)}
+
+    /* FAQ */
+    .faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .faq-item{padding:14px}
+    .faq-q{display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer}
+    .faq-q h4{margin:0;font-size:14px}
+    .faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease,opacity .25s ease;opacity:0}
+    .faq-item.open .faq-a{max-height:200px;opacity:1;margin-top:8px}
+    .faq-a p{margin:0;font-size:14px;color:var(--muted);line-height:1.55}
+
+    /* Footer */
+    footer{
+      border-top:1px solid var(--line);
+      padding:22px 0;color:var(--muted2);font-size:13px;
+    }
+    .footer-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .footer-links{display:flex;gap:12px;flex-wrap:wrap}
+    .footer-links a:hover{color:#fff}
+
+    /* Responsive */
+    @media (max-width: 980px){
+      .hero-grid,.two-col,.craft-grid,.buy-grid,.faq-grid{grid-template-columns:1fr}
+      .features,.reviews-grid{grid-template-columns:1fr 1fr}
+      .spec-grid,.trust{grid-template-columns:repeat(2,1fr)}
+      .stats{grid-template-columns:repeat(2,1fr)}
+      nav ul{display:none}
+      .menu-btn{display:inline-flex}
+      .mobile-menu{
+        display:none;margin-top:8px;border:1px solid var(--line);background:rgba(0,0,0,0.75);
+        border-radius:16px;padding:8px
+      }
+      .mobile-menu.open{display:block}
+      .mobile-menu a{display:block;padding:10px 12px;border-radius:12px;font-size:14px;color:var(--muted)}
+      .mobile-menu a:hover{background:rgba(255,255,255,0.06);color:#fff}
+    }
+    @media (max-width: 560px){
+      .hero h1{font-size:36px}
+      .features,.reviews-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="container">
+    <div class="nav">
+      <a class="brand" href="#top">
+        <div class="brandMark">A</div>
+        <div>
+          <div style="font-weight:700;font-size:14px">Aurelia</div>
+          <div style="font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted3)">Timepieces</div>
+        </div>
+      </a>
+
+      <nav>
+        <ul id="desktopNav">
+          <li><a href="#coleccion" data-spy="coleccion">Colección</a></li>
+          <li><a href="#detalles" data-spy="detalles">Detalles</a></li>
+          <li><a href="#proceso" data-spy="proceso">Proceso</a></li>
+          <li><a href="#opiniones" data-spy="opiniones">Opiniones</a></li>
+          <li><a href="#faq" data-spy="faq">FAQ</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <a class="btn btn-primary" href="#comprar">Comprar</a>
+        <button class="btn menu-btn" id="menuBtn" aria-label="Abrir menú">☰</button>
+      </div>
+    </div>
+
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="#coleccion">Colección</a>
+      <a href="#detalles">Detalles</a>
+      <a href="#proceso">Proceso</a>
+      <a href="#opiniones">Opiniones</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn btn-primary" style="margin-top:6px;width:100%" href="#comprar">Comprar ahora</a>
+    </div>
   </div>
-);
+</header>
 
-const ColorDot = ({ color, active, onClick }) => (
-  <button
-    onClick={onClick}
-    aria-label={`Color ${color.name}`}
-    className={cn(
-      "relative h-9 w-9 rounded-full p-[2px] transition",
-      active ? "ring-2 ring-white/80" : "ring-1 ring-white/15 hover:ring-white/40"
-    )}
-  >
-    <span
-      className="block h-full w-full rounded-full"
-      style={{ background: color.hex }}
-    />
-  </button>
-);
+<main id="top">
 
-const Stat = ({ label, value }) => (
-  <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-    <div className="text-xs uppercase tracking-widest text-white/60">{label}</div>
-    <div className="mt-1 text-lg font-semibold text-white">{value}</div>
-  </div>
-);
+  <!-- HERO / COLECCIÓN -->
+  <section id="coleccion" class="hero section">
+    <div class="container hero-grid">
 
-const Price = ({ amount, currency }) => {
-  const formatted = useMemo(
-    () => new Intl.NumberFormat("es-ES", { style: "currency", currency }).format(amount),
-    [amount, currency]
-  );
-  return <span>{formatted}</span>;
-};
+      <div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div class="chip">✨ Edición limitada 2025</div>
+          <div class="chip"><strong>★ 4.9/5</strong> reseñas</div>
+        </div>
 
-function Header({ activeSection }) {
-  const [open, setOpen] = useState(false);
+        <h1>
+          Nocturne 01.
+          <span>Precisión suiza. Diseño atemporal.</span>
+        </h1>
 
-  return (
-    <header className="fixed inset-x-0 top-0 z-50">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/10 bg-black/40 px-4 py-3 backdrop-blur-xl">
-          <a href="#top" className="group flex items-center gap-2">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-white/10 text-white">
-              <span className="text-sm font-bold tracking-widest">A</span>
-            </div>
-            <div className="leading-tight">
-              <div className="text-sm font-semibold text-white">{WATCH.brand}</div>
-              <div className="text-[10px] uppercase tracking-[0.3em] text-white/60">Timepieces</div>
-            </div>
+        <p>
+          Una reinterpretación moderna de la relojería clásica, con un movimiento automático visible y acabados artesanales.
+        </p>
+
+        <div style="margin-top:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <div class="price">$1,890 USD</div>
+          <div class="small">Envío express gratuito · 2 años de garantía</div>
+        </div>
+
+        <!-- Colores -->
+        <div class="color-row" id="colorRow">
+          <button class="color-dot active" data-color="obsidian" aria-label="Obsidian Black"><span style="background:#0B0D10"></span></button>
+          <button class="color-dot" data-color="arctic" aria-label="Arctic Silver"><span style="background:#DDE3EA"></span></button>
+          <button class="color-dot" data-color="champagne" aria-label="Champagne Gold"><span style="background:#D8C3A5"></span></button>
+          <div class="color-name" id="colorName">Obsidian Black</div>
+        </div>
+
+        <!-- Botones de compra (puente) -->
+        <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+          <a class="btn btn-primary"
+             target="_blank" rel="noopener noreferrer"
+             href="https://www.amazon.com/s?k=reloj&crid=37IK4Q9UCM6UO&sprefix=reloj%2Caps%2C145&ref=nb_sb_noss_1">
+            Comprar en Amazon
           </a>
-
-          <nav className="hidden items-center gap-1 md:flex">
-            {navItems.map((item) => (
-              <a
-                key={item.id}
-                href={`#${item.id}`}
-                className={cn(
-                  "rounded-lg px-3 py-2 text-sm transition",
-                  activeSection === item.id
-                    ? "bg-white/10 text-white"
-                    : "text-white/70 hover:bg-white/5 hover:text-white"
-                )}
-              >
-                {item.label}
-              </a>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-2">
-            <a
-              href="#comprar"
-              className="hidden rounded-xl bg-white px-4 py-2 text-sm font-semibold text-black shadow hover:bg-white/90 md:inline-flex"
-            >
-              Comprar
-            </a>
-            <button
-              onClick={() => setOpen((v) => !v)}
-              className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-white md:hidden"
-              aria-label="Abrir menú"
-            >
-              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
+          <a class="btn"
+             target="_blank" rel="noopener noreferrer"
+             href="https://es.aliexpress.com/w/wholesale-Reloj.html?osf=direct&spm=a2g0n.home.header.0">
+            Comprar en AliExpress
+          </a>
+          <a class="btn"
+             target="_blank" rel="noopener noreferrer"
+             href="https://www.instagram.com/thewachoshn?igsh=eGMzeWxuMzFkZm1s">
+            Instagram Shop
+          </a>
+          <a class="btn btn-ghost" href="#detalles">Ver detalles →</a>
         </div>
 
-        <AnimatePresence>
-          {open && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              className="mt-2 rounded-2xl border border-white/10 bg-black/70 p-2 backdrop-blur-xl md:hidden"
-            >
-              {navItems.map((item) => (
-                <a
-                  key={item.id}
-                  href={`#${item.id}`}
-                  onClick={() => setOpen(false)}
-                  className={cn(
-                    "block rounded-xl px-4 py-3 text-sm transition",
-                    activeSection === item.id
-                      ? "bg-white/10 text-white"
-                      : "text-white/80 hover:bg-white/5"
-                  )}
-                >
-                  {item.label}
-                </a>
-              ))}
-              <a
-                href="#comprar"
-                onClick={() => setOpen(false)}
-                className="mt-2 block rounded-xl bg-white px-4 py-3 text-center text-sm font-semibold text-black"
-              >
-                Comprar ahora
-              </a>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </header>
-  );
-}
-
-function Hero({ colorId, setColorId }) {
-  const gallery = WATCH.gallery[colorId];
-  const [imgIdx, setImgIdx] = useState(0);
-  useEffect(() => setImgIdx(0), [colorId]);
-
-  return (
-    <section id="coleccion" className="relative pt-32 md:pt-40">
-      {/* background */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-[radial-gradient(1200px_circle_at_80%_-10%,rgba(255,255,255,0.12),transparent_60%),radial-gradient(1000px_circle_at_10%_10%,rgba(255,255,255,0.08),transparent_55%)]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-black to-[#06070A]" />
-        <div className="absolute left-1/2 top-[-260px] h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-white/5 blur-3xl" />
-      </div>
-
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
-        <div className="flex flex-col justify-center">
-          <div className="flex items-center gap-3">
-            <Badge>Edición limitada 2025</Badge>
-            <div className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs text-white/70">
-              <Star className="h-3.5 w-3.5 fill-white/70" />
-              4.9/5
-            </div>
-          </div>
-          <h1 className="mt-5 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-            {WATCH.model}.
-            <span className="block bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">
-              {WATCH.tagline}
-            </span>
-          </h1>
-          <p className="mt-4 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg">
-            {WATCH.heroCopy}
-          </p>
-
-          <div className="mt-6 flex flex-wrap items-center gap-4">
-            <div className="text-2xl font-semibold text-white">
-              <Price amount={WATCH.price} currency={WATCH.currency} />
-            </div>
-            <div className="text-sm text-white/60">Envío express gratuito · 2 años de garantía</div>
-          </div>
-
-          <div className="mt-7 flex flex-wrap items-center gap-3">
-            {WATCH.colors.map((c) => (
-              <ColorDot
-                key={c.id}
-                color={c}
-                active={c.id === colorId}
-                onClick={() => setColorId(c.id)}
-              />
-            ))}
-            <div className="ml-2 text-sm text-white/70">{WATCH.colors.find((c) => c.id === colorId)?.name}</div>
-          </div>
-
-          <div className="mt-8 flex flex-wrap gap-3">
-            <a
-              href="https://www.amazon.com/s?k=reloj&crid=37IK4Q9UCM6UO&sprefix=reloj%2Caps%2C145&ref=nb_sb_noss_1"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black shadow-lg shadow-white/10 transition hover:bg-white/90"
-            >
-              Comprar en Amazon
-            </a>
-            <a
-              href="https://es.aliexpress.com/w/wholesale-Reloj.html?osf=direct&spm=a2g0n.home.header.0"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white/90 transition hover:bg-white/10"
-            >
-              Comprar en AliExpress
-            </a>
-            <a
-              href="https://www.instagram.com/thewachoshn?igsh=eGMzeWxuMzFkZm1s"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white/90 transition hover:bg-white/10"
-            >
-              Instagram Shop
-            </a>
-          </div>
-
-          <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <Stat label="Reserva" value="48h" />
-            <Stat label="Stock" value="120 uds" />
-            <Stat label="Diámetro" value="40 mm" />
-            <Stat label="Peso" value="62 g" />
-          </div>
-        </div>
-
-        {/* gallery */}
-        <div className="relative">
-          <GlassCard className="relative overflow-hidden p-3">
-            <div className="relative aspect-[4/5] overflow-hidden rounded-xl">
-              <AnimatePresence mode="wait">
-                <motion.img
-                  key={gallery[imgIdx]}
-                  src={gallery[imgIdx]}
-                  alt={`${WATCH.brand} ${WATCH.model}`}
-                  className="h-full w-full object-cover"
-                  initial={{ opacity: 0, scale: 1.02 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  transition={{ duration: 0.5, ease: "easeOut" }}
-                />
-              </AnimatePresence>
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0" />
-            </div>
-
-            <div className="mt-3 grid grid-cols-3 gap-3">
-              {gallery.map((src, i) => (
-                <button
-                  key={src}
-                  onClick={() => setImgIdx(i)}
-                  className={cn(
-                    "relative aspect-[4/3] overflow-hidden rounded-lg border transition",
-                    imgIdx === i ? "border-white/70" : "border-white/10 hover:border-white/40"
-                  )}
-                >
-                  <img src={src} alt="Vista del reloj" className="h-full w-full object-cover" />
-                </button>
-              ))}
-            </div>
-          </GlassCard>
-
-          <div className="pointer-events-none absolute -right-6 -top-6 hidden h-44 w-44 rounded-full bg-white/10 blur-3xl md:block" />
-          <div className="pointer-events-none absolute -bottom-8 -left-8 hidden h-52 w-52 rounded-full bg-white/5 blur-3xl md:block" />
+        <!-- Stats -->
+        <div class="stats">
+          <div class="stat"><div class="label">Reserva</div><div class="value">48h</div></div>
+          <div class="stat"><div class="label">Stock</div><div class="value">120 uds</div></div>
+          <div class="stat"><div class="label">Diámetro</div><div class="value">40 mm</div></div>
+          <div class="stat"><div class="label">Peso</div><div class="value">62 g</div></div>
         </div>
       </div>
 
-      {/* trust bar */}
-      <div className="mx-auto mt-14 max-w-7xl px-4 sm:px-6 lg:px-8">
-        <GlassCard className="grid grid-cols-2 gap-4 p-5 md:grid-cols-4">
-          {WATCH.specs.map((s) => (
-            <div key={s.label} className="flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-white/5 text-white">
-                <s.icon className="h-5 w-5" />
-              </div>
-              <div>
-                <div className="text-xs uppercase tracking-widest text-white/60">{s.label}</div>
-                <div className="text-sm font-medium text-white">{s.value}</div>
-              </div>
-            </div>
-          ))}
-        </GlassCard>
-      </div>
-    </section>
-  );
-}
-
-function Details() {
-  return (
-    <section id="detalles" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
-        <div className="lg:col-span-1">
-          <div className="text-xs uppercase tracking-[0.25em] text-white/60">Detalles</div>
-          <h2 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">
-            Ingeniería pensada para durar décadas.
-          </h2>
-          <p className="mt-4 text-white/70">
-            Cada pieza se ensambla a mano y se calibra en cinco posiciones para garantizar una marcha estable.
-          </p>
+      <!-- Galería -->
+      <div class="glass gallery">
+        <div class="gallery-main">
+          <img id="mainImg" src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1400&auto=format&fit=crop" alt="Aurelia Nocturne 01">
         </div>
-        <div className="lg:col-span-2">
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-            {WATCH.features.map((f) => (
-              <GlassCard key={f.title} className="p-6">
-                <div className="text-lg font-semibold text-white">{f.title}</div>
-                <p className="mt-2 text-sm leading-relaxed text-white/70">{f.text}</p>
-              </GlassCard>
-            ))}
-          </div>
-
-          <GlassCard className="mt-6 p-6">
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-              <SpecLine label="Reserva de marcha" value="42 horas" />
-              <SpecLine label="Frecuencia" value="28,800 vph" />
-              <SpecLine label="Grosor" value="11.2 mm" />
-              <SpecLine label="Correa" value="Cuero italiano" />
-              <SpecLine label="Cierre" value="Deployant" />
-              <SpecLine label="Garantía" value="24 meses" />
-              <SpecLine label="Cristal trasero" value="Zafiro" />
-              <SpecLine label="Edición" value="Numerada" />
-            </div>
-          </GlassCard>
-        </div>
+        <div class="thumbs" id="thumbs"></div>
       </div>
-    </section>
-  );
-}
+    </div>
 
-const SpecLine = ({ label, value }) => (
-  <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-    <div className="text-xs uppercase tracking-widest text-white/60">{label}</div>
-    <div className="mt-1 text-sm font-medium text-white">{value}</div>
-  </div>
-);
-
-function Craft() {
-  return (
-    <section id="proceso" className="relative py-20">
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#06070A] via-black to-black" />
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+    <!-- Trust bar -->
+    <div class="container">
+      <div class="glass trust">
+        <div class="trust-item">
+          <div class="trust-ico">⏱</div>
           <div>
-            <div className="text-xs uppercase tracking-[0.25em] text-white/60">Proceso</div>
-            <h2 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">
-              Artesanía moderna, precisión milimétrica.
-            </h2>
-            <p className="mt-4 text-white/70">
-              Desde el pulido de la caja hasta la regulación final, cada etapa sigue estándares de alta relojería.
-            </p>
-            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <ProcessCard num="01" title="Mecanizado" text="CNC de tolerancia mínima y acabados a mano." />
-              <ProcessCard num="02" title="Ensamble" text="Montaje manual por maestros relojeros." />
-              <ProcessCard num="03" title="Calibración" text="Pruebas de marcha y hermeticidad." />
-            </div>
+            <div class="tlabel">Movimiento</div>
+            <div class="tval">Automático calibre A-17</div>
           </div>
-          <GlassCard className="relative overflow-hidden p-3">
-            <div className="aspect-[16/11] overflow-hidden rounded-xl">
-              <img
-                src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?q=80&w=1400&auto=format&fit=crop"
-                alt="Taller de relojería"
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <div className="mt-3 grid grid-cols-2 gap-3">
-              <img
-                src="https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?q=80&w=1200&auto=format&fit=crop"
-                alt="Detalle de dial"
-                className="aspect-[4/3] w-full rounded-lg object-cover"
-              />
-              <img
-                src="https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?q=80&w=1200&auto=format&fit=crop"
-                alt="Brazalete"
-                className="aspect-[4/3] w-full rounded-lg object-cover"
-              />
-            </div>
-          </GlassCard>
+        </div>
+        <div class="trust-item">
+          <div class="trust-ico">💧</div>
+          <div>
+            <div class="tlabel">Resistencia</div>
+            <div class="tval">10 ATM / 100 m</div>
+          </div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-ico">🛡</div>
+          <div>
+            <div class="tlabel">Cristal</div>
+            <div class="tval">Zafiro antirreflejo</div>
+          </div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-ico">💎</div>
+          <div>
+            <div class="tlabel">Caja</div>
+            <div class="tval">Acero 316L pulido</div>
+          </div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- DETALLES -->
+  <section id="detalles" class="section">
+    <div class="container two-col">
+      <div>
+        <div class="kicker">Detalles</div>
+        <h2>Ingeniería pensada para durar décadas.</h2>
+        <p style="color:var(--muted)">
+          Cada pieza se ensambla a mano y se calibra en cinco posiciones para garantizar una marcha estable.
+        </p>
+      </div>
+
+      <div>
+        <div class="features">
+          <div class="glass feature">
+            <h3>Esqueleto contemporáneo</h3>
+            <p>Vista del movimiento con puentes biselados y rotor satinado. Un espectáculo discreto.</p>
+          </div>
+          <div class="glass feature">
+            <h3>Lume de doble tono</h3>
+            <p>Legibilidad total de noche con marcadores Super-LumiNova y agujas facetadas.</p>
+          </div>
+          <div class="glass feature">
+            <h3>Correa intercambiable</h3>
+            <p>Sistema quick-release compatible con cuero y brazalete metálico.</p>
+          </div>
+        </div>
+
+        <div class="glass spec-grid">
+          <div class="spec"><div class="slabel">Reserva de marcha</div><div class="sval">42 horas</div></div>
+          <div class="spec"><div class="slabel">Frecuencia</div><div class="sval">28,800 vph</div></div>
+          <div class="spec"><div class="slabel">Grosor</div><div class="sval">11.2 mm</div></div>
+          <div class="spec"><div class="slabel">Correa</div><div class="sval">Cuero italiano</div></div>
+          <div class="spec"><div class="slabel">Cierre</div><div class="sval">Deployant</div></div>
+          <div class="spec"><div class="slabel">Garantía</div><div class="sval">24 meses</div></div>
+          <div class="spec"><div class="slabel">Cristal trasero</div><div class="sval">Zafiro</div></div>
+          <div class="spec"><div class="slabel">Edición</div><div class="sval">Numerada</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESO / ARTESANÍA -->
+  <section id="proceso" class="section craft">
+    <div class="container craft-grid">
+      <div>
+        <div class="kicker">Proceso</div>
+        <h2>Artesanía moderna, precisión milimétrica.</h2>
+        <p style="color:var(--muted)">
+          Desde el pulido de la caja hasta la regulación final, cada etapa sigue estándares de alta relojería.
+        </p>
+        <div class="process">
+          <div class="step">
+            <div class="num">01</div>
+            <div class="title">Mecanizado</div>
+            <div class="text">CNC de tolerancia mínima y acabados a mano.</div>
+          </div>
+          <div class="step">
+            <div class="num">02</div>
+            <div class="title">Ensamble</div>
+            <div class="text">Montaje manual por maestros relojeros.</div>
+          </div>
+          <div class="step">
+            <div class="num">03</div>
+            <div class="title">Calibración</div>
+            <div class="text">Pruebas de marcha y hermeticidad.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass craft-img">
+        <img style="border-radius:14px;aspect-ratio:16/11;object-fit:cover"
+             src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?q=80&w=1400&auto=format&fit=crop"
+             alt="Taller de relojería">
+        <div class="craft-half">
+          <img style="border-radius:12px;aspect-ratio:4/3;object-fit:cover"
+               src="https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?q=80&w=1200&auto=format&fit=crop" alt="Detalle de dial">
+          <img style="border-radius:12px;aspect-ratio:4/3;object-fit:cover"
+               src="https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?q=80&w=1200&auto=format&fit=crop" alt="Brazalete">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OPINIONES -->
+  <section id="opiniones" class="section">
+    <div class="container">
+      <div class="reviews-head">
+        <div>
+          <div class="kicker">Opiniones</div>
+          <h2>Elegido por amantes de la relojería.</h2>
+        </div>
+        <div class="stars">★★★★★ <span style="font-size:13px;color:var(--muted)">4.9 promedio</span></div>
+      </div>
+
+      <div class="reviews-grid">
+        <div class="glass review">
+          <div class="rname">Lucía M.</div>
+          <div class="stars" style="font-size:12px">★★★★★</div>
+          <p class="rtext">“La sensación en muñeca es increíble. Se nota la calidad en cada detalle.”</p>
+        </div>
+        <div class="glass review">
+          <div class="rname">Arturo M.</div>
+          <div class="stars" style="font-size:12px">★★★★★</div>
+          <p class="rtext">“Minimalista pero con carácter. El movimiento visible es hipnótico.”</p>
+        </div>
+        <div class="glass review">
+          <div class="rname">Daniela R.</div>
+          <div class="stars" style="font-size:12px">★★★★☆</div>
+          <p class="rtext">“Acabados premium y entrega impecable. Muy recomendable.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPRAR -->
+  <section id="comprar" class="section buy">
+    <div class="container">
+      <div class="glass buy-grid">
+        <div style="padding:8px">
+          <div class="kicker">Compra segura</div>
+          <h2 style="font-size:28px;margin-top:8px">Aurelia Nocturne 01</h2>
+          <div style="color:var(--muted)">Precisión suiza. Diseño atemporal.</div>
+
+          <div class="color-tags" id="colorTags"></div>
+
+          <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:end">
+            <div>
+              <div class="small">Precio</div>
+              <div class="price">$1,890 USD</div>
+            </div>
+            <div class="small">IVA incluido</div>
+          </div>
+
+          <div class="perks">
+            <div class="perk">🛡 Garantía 2 años</div>
+            <div class="perk">📦 Envío gratis</div>
+            <div class="perk">💧 100m waterproof</div>
+          </div>
+
+          <!-- Botones puente de compra -->
+          <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+            <a class="btn btn-primary"
+               target="_blank" rel="noopener noreferrer"
+               href="https://www.amazon.com/s?k=reloj&crid=37IK4Q9UCM6UO&sprefix=reloj%2Caps%2C145&ref=nb_sb_noss_1">
+              Ir a Amazon
+            </a>
+            <a class="btn"
+               target="_blank" rel="noopener noreferrer"
+               href="https://es.aliexpress.com/w/wholesale-Reloj.html?osf=direct&spm=a2g0n.home.header.0">
+              Ir a AliExpress
+            </a>
+            <a class="btn"
+              target="_blank" rel="noopener noreferrer"
+               href="https://www.instagram.com/thewachoshn?igsh=eGMzeWxuMzFkZm1s">
+              Ir a Instagram Shop
+            </a>
+          </div>
+        </div>
+
+        <!-- Formulario solo estético -->
+        <form onsubmit="event.preventDefault()">
+          <div style="font-weight:700;font-size:14px">Datos de compra (demo)</div>
+          <div style="display:grid;gap:10px;margin-top:10px">
+            <label>Nombre
+              <input required placeholder="Tu nombre" />
+            </label>
+            <label>Email
+              <input required type="email" placeholder="nombre@correo.com" />
+            </label>
+            <label>País
+              <input required placeholder="Panamá / México / España…" />
+            </label>
+            <label>Dirección
+              <input required placeholder="Calle, número, ciudad" />
+            </label>
+          </div>
+
+          <button class="btn btn-primary" style="width:100%;margin-top:12px">
+            Continuar a compra externa →
+          </button>
+
+          <div style="margin-top:8px;text-align:center;color:var(--muted2);font-size:11px">
+            Pago real se completa en Amazon / AliExpress / Instagram.
+          </div>
+        </form>
+      </div>
+    </div>
     </section>
-  );
-}
 
-const ProcessCard = ({ num, title, text }) => (
-<div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-<div className="text-xs font-semibold text-white/60">{num}</div>
-<div className="mt-2 text-sm font-semibold text-white">{title}</div>
-<div className="mt-1 text-sm text-white/70">{text}</div>
-</div>
-);
+  <!-- FAQ -->
+  <section id="faq" class="section">
+    <div class="container faq-grid">
+      <div>
+        <div class="kicker">FAQ</div>
+        <h2>Preguntas frecuentes</h2>
+        <p style="color:var(--muted)">Si necesitas algo más, nuestro equipo está disponible 24/7.</p>
+      </div>
 
+      <div style="display:grid;gap:10px">
+        <div class="glass faq-item open">
+          <div class="faq-q"><h4>¿Qué incluye la compra?</h4><span>＋</span></div>
+          <div class="faq-a"><p>Reloj, estuche premium, correa adicional, herramienta quick-release y certificado de autenticidad.</p></div>
+        </div>
+        <div class="glass faq-item">
+          <div class="faq-q"><h4>¿Cuánto tarda el envío?</h4><span>＋</span></div>
+          <div class="faq-a"><p>Depende de la plataforma externa. Normalmente de 2 a 5 días con seguimiento.</p></div>
+        </div>
+        <div class="glass faq-item">
+          <div class="faq-q"><h4>¿Puedo devolverlo si no me convence?</h4><span>＋</span></div>
+          <div class="faq-a"><p>Las devoluciones se gestionan directamente en Amazon, AliExpress o Instagram Shop según su política.</p></div>
+        </div>
+        <div class="glass faq-item">
+          <div class="faq-q"><h4>¿Requiere mantenimiento?</h4><span>＋</span></div>
+          <div class="faq-a"><p>Se recomienda revisión cada 4–5 años para conservar precisión y estanqueidad.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-function Reviews() {
-return (
-<section id="opiniones" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-<div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
-<div>
-<div className="text-xs uppercase tracking-[0.25em] text-white/60">Opiniones</div>
-<h2 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">
-Elegido por amantes de la relojería.
-</h2>
-</div>
-<div className="flex items-center gap-2 text-white/80">
-{Array.from({ length: 5 }).map((_, i) => (
-<Star key={i} className="h-5 w-5 fill-white/80" />
-))}
-<span className="text-sm">4.9 promedio</span>
-</div>
-</div>
-
-
-<div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
-{WATCH.reviews.map((r) => (
-<GlassCard key={r.name} className="p-6">
-<div className="flex items-center justify-between">
-<div className="text-sm font-semibold text-white">{r.name}</div>
-<div className="flex items-center gap-1">
-{Array.from({ length: r.rating }).map((_, i) => (
-<Star key={i} className="h-4 w-4 fill-white" />
-))}
-</div>
-</div>
-<p className="mt-3 text-sm leading-relaxed text-white/75">“{r.text}”</p>
-</GlassCard>
-))}
-</div>
-</section>
-);
-}
-
-
-function BuyBox({ colorId }) {
-return (
-<section id="comprar" className="relative py-20">
-<div className="absolute inset-0 -z-10 bg-gradient-to-b from-black via-[#06070A] to-black" />
-<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-<GlassCard className="grid grid-cols-1 gap-8 p-6 md:grid-cols-2 md:p-10">
-<div>
-<div className="text-xs uppercase tracking-[0.25em] text-white/60">Compra segura</div>
-<h3 className="mt-3 text-2xl font-semibold text-white sm:text-3xl">
-{WATCH.brand} {WATCH.model}
-</h3>
-<p className="mt-2 text-white/70">{WATCH.tagline}</p>
-
-
-<div className="mt-6 flex items-center gap-3">
-{WATCH.colors.map((c) => (
-<div key={c.id} className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
-<span className="h-4 w-4 rounded-full" style={{ background: c.hex }} />
-<span className={cn("text-sm", c.id === colorId ? "text-white" : "text-white/60")}>{c.name}</span>
-</div>
-))}
-</div>
-
-
-<div className="mt-6 flex items-end justify-between">
-<div>
-<div className="text-sm text-white/60">Precio</div>
-<div className="text-3xl font-semibold text-white">
-<Price amount={WATCH.price} currency={WATCH.currency} />
-</div>
-</div>
-<div className="text-right text-sm text-white/60">IVA incluido</div>
-</div>
-
-
-<div className="mt-6 grid grid-cols-3 gap-3">
-<MiniPerk icon={ShieldCheck} title="Garantía 2 años" />
-<MiniPerk icon={ShoppingBag} title="Envío gratis" />
-<MiniPerk icon={Droplets} title="100m waterproof" />
-</div>
-</div>
-
-
-<form
-onSubmit={(e) => e.preventDefault()}
-className="rounded-2xl border border-white/10 bg-white/5 p-5"
->
-<div className="text-sm font-semibold text-white">Datos de compra</div>
-<div className="mt-4 grid grid-cols-1 gap-3">
-<Input label="Nombre" placeholder="Tu nombre" required />
-<Input label="Email" type="email" placeholder="nombre@correo.com" required />
-<Input label="País" placeholder="Panamá / México / España…" required />
-<Input label="Dirección" placeholder="Calle, número, ciudad" required />
-</div>
-<button
-type="submit"
-className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-white/90"
->
-Finalizar pedido
-<ChevronRight className="h-4 w-4" />
-</button>
-<div className="mt-3 text-center text-xs text-white/60">
-Pago protegido con cifrado SSL.
-</div>
-</form>
-</GlassCard>
-</div>
-</section>
-);
-}
-
-
-const MiniPerk = ({ icon: Icon, title }) => (
-<div className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/40 px-3 py-2">
-<Icon className="h-4 w-4 text-white/90" />
-<span className="text-xs text-white/80">{title}</span>
-</div>
-);
-
-
-const Input = ({ label, ...props }) => (
-<label className="grid gap-1">
-<span className="text-xs text-white/70">{label}</span>
-<input
-{...props}
-className="h-11 rounded-xl border border-white/10 bg-black/40 px-3 text-sm text-white placeholder:text-white/40 outline-none transition focus:border-white/40 focus:ring-2 focus:ring-white/10"
-/>
-</label>
-);
-
-
-function FAQ() {
-const items = [
-{
-q: "¿Qué incluye la compra?",
-a: "Reloj, estuche premium, correa adicional, herramienta quick‑release y certificado de autenticidad.",
-},
-{
-q: "¿Cuánto tarda el envío?",
-a: "De 2 a 5 días laborables con seguimiento en tiempo real. En Panamá suele llegar en 48h.",
-},
-{
-q: "¿Puedo devolverlo si no me convence?",
-a: "Sí, tienes 30 días para devolución gratuita siempre que esté en perfecto estado.",
-},
-{
-q: "¿Requiere mantenimiento?",
-a: "Recomendamos revisión cada 4–5 años para conservar su precisión y estanqueidad.",
-},
-];
-
-
-const [open, setOpen] = useState(0);
-
-
-return (
-<section id="faq" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-<div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-<div>
-<div className="text-xs uppercase tracking-[0.25em] text-white/60">FAQ</div>
-<h2 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">
-Preguntas frecuentes
-</h2>
-<p className="mt-4 text-white/70">
-Si necesitas algo más, nuestro equipo de concierge está disponible 24/7.
-</p>
-</div>
-
-
-<div className="grid gap-3">
-{items.map((it, i) => {
-const isOpen = open === i;
-return (
-<GlassCard key={it.q} className="p-5">
-<button
-className="flex w-full items-center justify-between gap-4 text-left"
-onClick={() => setOpen(isOpen ? -1 : i)}
->
-<div className="text-sm font-semibold text-white">{it.q}</div>
-<div className={cn("text-white/70 transition", isOpen && "rotate-45")}>
-<X className="h-4 w-4" />
-</div>
-</button>
-<AnimatePresence>
-{isOpen && (
-<motion.div
-initial={{ height: 0, opacity: 0 }}
-animate={{ height: "auto", opacity: 1 }}
-exit={{ height: 0, opacity: 0 }}
-className="overflow-hidden"
->
-<p className="mt-3 text-sm leading-relaxed text-white/70">{it.a}</p>
-</motion.div>
-)}
-</AnimatePresence>
-</GlassCard>
-);
-})}
-</div>
-</div>
-</section>
-);
-}
-
-
-function Footer() {
-return (
-<footer className="border-t border-white/10 bg-black">
-<div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-<div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
-<div className="flex items-center gap-3">
-<div className="grid h-10 w-10 place-items-center rounded-xl bg-white/10 text-white">
-<span className="text-sm font-bold tracking-widest">A</span>
-</div>
-<div>
-<div className="text-sm font-semibold text-white">{WATCH.brand}</div>
-<div className="text-xs text-white/60">© {new Date().getFullYear()} Aurelia Timepieces</div>
-</div>
-</div>
-
-
-<div className="flex flex-wrap gap-3 text-sm text-white/70">
-<a href="#detalles" className="hover:text-white">Detalles</a>
-<a href="#opiniones" className="hover:text-white">Opiniones</a>
-<a href="#faq" className="hover:text-white">FAQ</a>
-<a href="#" className="hover:text-white">Privacidad</a>
-</div>
-
-
-<div className="text-xs text-white/50">
-Hecho con precisión.
-</div>
-</div>
-</div>
-</footer>
-);
-}
-
-
-export default function PremiumWatchSite() {
-const [colorId, setColorId] = useState(WATCH.colors[0].id);
-const active = useScrollSpy(navItems.map((n) => n.id));
-
-
-return (
-<div id="top" className="min-h-screen bg-black text-white">
-<Header activeSection={active} />
-<main>
-<Hero colorId={colorId} setColorId={setColorId} />
-<Details />
-<Craft />
-<Reviews />
-<BuyBox colorId={colorId} />
-<FAQ />
 </main>
-<Footer />
-</div>
-);
-}
+
+<footer>
+  <div class="container footer-row">
+    <div class="brand">
+      <div class="brandMark">A</div>
+      <div>
+        <div style="font-weight:700;font-size:14px;color:#fff">Aurelia</div>
+        <div>© <span id="year"></span> Aurelia Timepieces</div>
+      </div>
+    </div>
+
+    <div class="footer-links">
+      <a href="#detalles">Detalles</a>
+      <a href="#opiniones">Opiniones</a>
+      <a href="#faq">FAQ</a>
+      <a href="#">Privacidad</a>
+    </div>
+
+    <div style="color:var(--muted3)">Hecho con precisión.</div>
+  </div>
+</footer>
+
+
+<script>
+  // Datos de galería por color
+  const WATCH = {
+    colors: [
+      { id:"obsidian", name:"Obsidian Black", hex:"#0B0D10",
+        imgs:[
+          "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1400&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1524805444758-089113d48a6d?q=80&w=1400&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1547996160-81dfa63595aa?q=80&w=1400&auto=format&fit=crop",
+        ]
+      },
+      { id:"arctic", name:"Arctic Silver", hex:"#DDE3EA",
+        imgs:[
